@@ -13,10 +13,11 @@ void port_scan(int argc, void** argv) {
     int fd = neco_dial_dl("tcp", host, neco_now() + NECO_SECOND);
     if (fd < 0) {
         printf("Port %d closed\n", i);
-        return;
     }
-    printf("Connected to port %d\n", i);
-    close(fd);
+    else {
+        printf("Connected to port %d\n", i);
+        close(fd);
+    }
     neco_waitgroup_done(wg);
 }
 
@@ -28,12 +29,13 @@ int neco_main(int argc, char** argv) {
     neco_waitgroup wg;
     neco_waitgroup_init(&wg);
     
-    int ports[] = {22, 80, 8080, 443};
+    //int ports[] = {22, 80, 8080, 443};
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 1; i < 1024; i++) {
         //        
         neco_waitgroup_add(&wg, 1);
-        neco_start(port_scan, 2, &ports[i], &wg);
+        //neco_start(port_scan, 2, &ports[i], &wg);
+        neco_start(port_scan, 2, &i, &wg);
     } 
     
     neco_waitgroup_wait(&wg);
