@@ -79,7 +79,7 @@ namespace neco {
     // --------------------------------------------------------------------------------------------
     class go {
     public:
-        go(coroutine coroutine);
+        explicit go(coroutine coroutine);
         virtual ~go() = default;
 
         template<typename... Args>
@@ -104,11 +104,11 @@ namespace neco {
     template<typename T>
     class channel {
     public:
-        channel(size_t capacity = 0) {
+        explicit channel(size_t capacity = 0) {
             neco_chan_make(&m_chan, sizeof(T), capacity);
             neco_chan_retain(m_chan);
         }
-        channel(neco_chan* chan, T* data = 0) : m_chan(chan) , m_data(data) {}
+        explicit channel(neco_chan* chan, T* data = 0) : m_chan(chan) , m_data(data) {}
 
         ~channel() {
             if (m_chan != nullptr) {
@@ -152,7 +152,7 @@ namespace neco {
     template<typename T>
     class generator : public go {
     public:
-        generator(coroutine coro) : go(coro) {}
+        explicit generator(coroutine coro) : go(coro) {}
 
         ~generator() {
             if (m_gen != nullptr) {

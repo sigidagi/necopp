@@ -10,11 +10,14 @@ int worker(int argc, void** argv) {
     (void)argc;
     auto wg = (neco::waitgroup*)argv[0];
 
-    auto receiver = (neco_chan*)(argv[1]);
+    auto receiver = static_cast<neco_chan*>(argv[1]);
     int port;
-    neco_chan_recv(receiver, &port);
-    fmt::print("worker: {}\n", port);
-    wg->done();
+
+    while (true) {
+        neco_chan_recv(receiver, &port);
+        fmt::print("worker: {}\n", port);
+        wg->done();
+    }
 
     return 0;
 }
@@ -27,17 +30,20 @@ int main_(int argc, char** argv) {
     int cap = 100;
     auto sender = neco::channel<int>(cap);
     neco::waitgroup wg;
-
+    
+    // Spin 100 workers
     for (int i = 0; i < cap; i++) {
         // Using C style argument passing
-        neco::go(std::function<int(int, void**)>(&worker))(&wg, sender.get());
+        neco::go(
+            std::function<int(int, void**)>(&worker))(&wg, sender.get()
+        );
     }
     
     for (int i = 0; i < 1024; i++) {
         wg.add(1);
         sender.send(&i);
     }
-
+    
     wg.wait();
     return 0;
 }
