@@ -108,7 +108,7 @@ namespace neco {
             neco_chan_make(&m_chan, sizeof(T), capacity);
             neco_chan_retain(m_chan);
         }
-        explicit channel(neco_chan* chan, T* data = 0) : m_chan(chan) , m_data(data) {}
+        explicit channel(neco_chan* chan) : m_chan(chan) {}
 
         ~channel() {
             if (m_chan != nullptr) {
@@ -121,13 +121,6 @@ namespace neco {
             return m_chan;
         }
 
-        Result send() {
-            if (m_chan == nullptr || m_data == nullptr) {
-                return Result::INVAL;
-            }
-            return (Result)neco_chan_send(m_chan, &m_data);
-        }
-        
         Result send(T* data) {
             if (m_chan == nullptr || data == nullptr) {
                 return Result::INVAL;
@@ -135,18 +128,18 @@ namespace neco {
             return (Result)neco_chan_send(m_chan, data);
         }
 
-        T* recv() {
+        T recv() {
             // TODO provide return value/error handling
+            T data{};
             if (m_chan == nullptr) {
-                return nullptr;
+                return data;
             }
-
-            neco_chan_recv(m_chan, &m_data);
-            return m_data;
+            // return copy of data
+            neco_chan_recv(m_chan, &data);
+            return data;
         }
     private:
         neco_chan * m_chan = nullptr;
-        T* m_data = nullptr;
     };
    
     template<typename T>

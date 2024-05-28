@@ -4,22 +4,22 @@
 #include <unistd.h>
 #include <chrono>
 
+const int PORT_NUM = 1024;
+
 using namespace std::chrono_literals;
 
 int main_(int argc, char** argv) {
     (void)argc;
     (void)argv;
-    fmt::print("Hello, coroutine!\n");
 
-    for (int i = 70; i < 81; i++) {
+    for (int i = 1; i < PORT_NUM; i++) {
         std::string host = fmt::format("scanme.nmap.org:{}", i);
 
         int fd = neco::dial("tcp", host.c_str(), 1s);
         if (fd < 0) {
-            fmt::print("Host {} closed\n", host);
             continue;
         }
-        fmt::print("Connected to {}\n", host);
+        fmt::print("Connected to '{}''\n", host);
         close(fd);
     }
 

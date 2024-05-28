@@ -9,13 +9,11 @@ using namespace std::chrono_literals;
 int worker(int argc, void** argv) {
     (void)argc;
     auto wg = (neco::waitgroup*)argv[0];
-
-    auto receiver = static_cast<neco_chan*>(argv[1]);
-    int port;
+    auto receiver = neco::channel<int>{static_cast<neco_chan*>(argv[1])};
 
     while (true) {
-        neco_chan_recv(receiver, &port);
-        fmt::print("worker: {}\n", port);
+        int port = receiver.recv();
+        std::cout <<  "port " << port << "\n";
         wg->done();
     }
 

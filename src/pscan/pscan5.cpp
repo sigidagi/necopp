@@ -5,6 +5,8 @@
 #include <chrono>
 
 using namespace std::chrono_literals;
+const int WORKER_COUNT = 300;
+const int PORT_COUNT = 1024;
 
 int worker(int argc, void** argv) {
     (void)argc;
@@ -14,7 +16,7 @@ int worker(int argc, void** argv) {
     int none = 0;
 
     while (true) {
-        int port = *port_receiver.recv();
+        int port = port_receiver.recv();
         std::string host = fmt::format("scanme.nmap.org:{}", port);
 
         int fd = neco::dial("tcp", host.c_str(), 1s);
@@ -22,7 +24,7 @@ int worker(int argc, void** argv) {
             result_sender.send(&none);
         }
         else {
-            fmt::print("Connected to {}\n", host);
+            //fmt::print("Connected to {}\n", host);
             result_sender.send(&port);
             close(fd);
         }
@@ -34,14 +36,12 @@ int worker(int argc, void** argv) {
 int main_(int argc, char** argv) {
     (void)argc;
     (void)argv;
-    fmt::print("Hello, coroutine!\n");
     
-    int cap = 100;
-    auto port_sender = neco::channel<int>(cap);
-    auto result_receiver = neco::channel<int>(cap);
+    auto port_sender = neco::channel<int>(WORKER_COUNT);
+    auto result_receiver = neco::channel<int>(WORKER_COUNT);
     
     // Spin 100 workers
-    for (int i = 0; i < cap; i++) {
+    for (int i = 0; i < WORKER_COUNT; i++) {
         // Using C style argument passing
         neco::go(
             std::function<int(int, void**)>(&worker))(port_sender.get(), result_receiver.get()
@@ -52,7 +52,7 @@ int main_(int argc, char** argv) {
         (void)argc;
         (void)argv;
         
-        for (int i = 0; i < 1024; i++) {
+        for (int i = 1; i < PORT_COUNT; i++) {
             port_sender.send(&i);
         }
     })();
@@ -60,13 +60,14 @@ int main_(int argc, char** argv) {
     std::vector<int> ports;
 
     // It was send 1024 times, so we need to receive 1024 times
-    for (int i = 0; i < 1024; i++) {
-        int port = *result_receiver.recv();
+    for (int i = 1; i < PORT_COUNT; i++) {
+        int port = result_receiver.recv();
         if (port != 0) {
             ports.push_back(port);
         }
     } 
-
+    
+    fmt::print("Finished:\n");
     std::sort(ports.begin(), ports.end());
     for (auto port : ports) {
         fmt::print("Port '{}' is open\n", port);
