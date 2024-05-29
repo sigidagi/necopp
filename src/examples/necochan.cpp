@@ -22,7 +22,7 @@ int main_(int argc, char *argv[]) {
     (void)argv;
    
     // create a channel witch can receive Foo objects.
-    auto chFoo = neco::channel<Foo>::create();
+    auto chFoo = neco::channel<Foo>();
 
     neco::go([&](int argc, void **argv) {
         (void)argc;
@@ -33,8 +33,7 @@ int main_(int argc, char *argv[]) {
     
     // copy received Foo object, otherwise it will be destroyed when neco::sleep will be called. 
     // TODO error handling
-    const neco::channel<Foo>& receiver = chFoo.receiver;
-    Foo foo = receiver.recv();
+    Foo foo = chFoo.receiver.recv();
 
     neco::sleep(1s);
     std::cout << "Received say: " << foo.say << " two: " << *foo.ptr << std::endl;

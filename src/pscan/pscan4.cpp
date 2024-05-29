@@ -9,10 +9,11 @@ using namespace std::chrono_literals;
 int worker(int argc, void** argv) {
     (void)argc;
     auto wg = (neco::waitgroup*)argv[0];
-    auto receiver = neco::channel<int>{static_cast<neco_chan*>(argv[1])};
-
+    auto ch = static_cast<neco::channel<int>*>(argv[1]);
+    
+    int port{};
     while (true) {
-        int port = receiver.recv();
+        ch->receiver >> port;
         std::cout <<  "port " << port << "\n";
         wg->done();
     }
@@ -26,20 +27,18 @@ int main_(int argc, char** argv) {
     fmt::print("Hello, coroutine!\n");
     
     int cap = 100;
-    auto sender = neco::channel<int>(cap);
+    auto ch = neco::channel<int>(cap);
     neco::waitgroup wg;
     
     // Spin 100 workers
     for (int i = 0; i < cap; i++) {
         // Using C style argument passing
-        neco::go(
-            std::function<int(int, void**)>(&worker))(&wg, sender.get()
-        );
+        neco::go(std::function<int(int, void**)>(&worker))(&wg, &ch);
     }
     
     for (int i = 0; i < 1024; i++) {
         wg.add(1);
-        sender.send(&i);
+        ch.sender << i;
     }
     
     wg.wait();

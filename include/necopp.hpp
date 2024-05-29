@@ -102,37 +102,10 @@ namespace neco {
     };
     
     template<typename T>
-    class channel;
-
-    template<typename T>
-    struct channel_pair {
-        channel<T> sender;
-        channel<T> receiver;
-    };
-
-    template<typename T>
-    class channel {
+    class _receiver {
     public:
-        static auto create(size_t capacity = 0) {
-            neco::channel<T> chan1{capacity};
-            neco::channel<T> chan2{chan1};
-            return channel_pair<T>{
-               chan1, 
-               chan2,
-            };
-        }
-
-        ~channel() {
-            if (m_chan != nullptr) {
-                neco_chan_release(m_chan);
-            }
-        }
-       
-        Result send(const T& data) const {
-            if (m_chan == nullptr) {
-                return Result::INVAL;
-            }
-            return (Result)neco_chan_send(m_chan, &const_cast<T&>(data));
+        void set(neco_chan* chan) {
+            m_chan = chan;
         }
 
         T recv() const {
@@ -146,38 +119,60 @@ namespace neco {
             return data;
         }
 
-        // Overload operator to send data to channel 
-        const channel& operator<<(const T& data) const {
-            this->send(data);
-            return *this;
-        }
-    
         // Overload operator to receive data from channel
-        const channel& operator>>(T& data) const {
+        const _receiver& operator>>(T& data) const {
             data = recv();
             return *this;
         }
-
+    
     private:
+        neco_chan*  m_chan = nullptr;
+    };
+    
+    template<typename T>
+    class _sender {
+    public:
+        void set(neco_chan* chan) {
+            m_chan = chan;
+        }
+
+        Result send(const T& data) const {
+            if (m_chan == nullptr) {
+                return Result::INVAL;
+            }
+            return (Result)neco_chan_send(m_chan, &const_cast<T&>(data));
+        }
+
+        // Overload operator to send data to channel 
+        const _sender& operator<<(const T& data) const {
+            this->send(data);
+            return *this;
+        }
+    private:
+        neco_chan* m_chan = nullptr;
+    };
+
+    template<typename T>
+    class channel {
+    public:
+        _sender<T> sender;
+        _receiver<T> receiver;
+ 
         explicit channel(size_t capacity = 0) {
             neco_chan_make(&m_chan, sizeof(T), capacity);
             neco_chan_retain(m_chan);
-        }
 
-        channel(const channel& other) {
-            neco_chan_retain(other.m_chan);
-            m_chan = other.m_chan;
+            sender.set(m_chan);
+            receiver.set(m_chan);
         }
-        channel& operator=(const channel& other) {
-            if (this != &other) {
-                neco_chan_retain(other.m_chan);
-                m_chan = other.m_chan;
+   
+        ~channel() {
+            if (m_chan != nullptr) {
+                neco_chan_release(m_chan);
             }
-            return *this;
         }
 
-        channel() = delete;
-
+    private:
         neco_chan * m_chan = nullptr;
     };
     

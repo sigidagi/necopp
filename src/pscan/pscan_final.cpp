@@ -13,9 +13,8 @@ int main_(int argc, char** argv) {
     (void)argv;
     
     // pors and results channels
-    auto ports = neco::channel<int>::create(WORKER_COUNT);
-    auto results = neco::channel<int>::create(WORKER_COUNT);
-    
+    auto ports = neco::channel<int>(WORKER_COUNT);
+    auto results = neco::channel<int>(WORKER_COUNT);
 
     // 1. Spin workers
     for (int i = 0; i < WORKER_COUNT; i++) {
