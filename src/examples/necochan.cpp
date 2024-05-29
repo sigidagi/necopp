@@ -22,24 +22,18 @@ int main_(int argc, char *argv[]) {
     (void)argv;
    
     // create a channel witch can receive Foo objects.
-    neco::channel<Foo> receiver;
+    auto chFoo = neco::channel<Foo>::create();
 
-    neco::go([&receiver](int argc, void **argv) {
+    neco::go([&](int argc, void **argv) {
         (void)argc;
         (void)argv;
-        
-        // other option pass arguments to coroutine as start arguments
-        //neco::channel* ch = (neco::channel*)argv[0];
-        std::cout << "This is the channel addr: " << receiver.get() << std::endl;
-        
-        Foo foo = { 42, 3.14, std::make_shared<int>(66), "Hello" };
-        neco::channel<Foo> sender{receiver.get()};
-        sender.send(&foo);
-
+        // 
+        chFoo.sender.send({ 42, 3.14, std::make_shared<int>(66), "Hello" });
     })();
     
     // copy received Foo object, otherwise it will be destroyed when neco::sleep will be called. 
     // TODO error handling
+    const neco::channel<Foo>& receiver = chFoo.receiver;
     Foo foo = receiver.recv();
 
     neco::sleep(1s);

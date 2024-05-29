@@ -100,15 +100,27 @@ namespace neco {
     private:
         //
     };
+    
+    template<typename T>
+    class channel;
+
+    template<typename T>
+    struct channel_pair {
+        channel<T> sender;
+        channel<T> receiver;
+    };
 
     template<typename T>
     class channel {
     public:
-        explicit channel(size_t capacity = 0) {
-            neco_chan_make(&m_chan, sizeof(T), capacity);
-            neco_chan_retain(m_chan);
+        static auto create(size_t capacity = 0) {
+            neco::channel<T> chan1{capacity};
+            neco::channel<T> chan2{chan1};
+            return channel_pair<T>{
+               chan1, 
+               chan2,
+            };
         }
-        explicit channel(neco_chan* chan) : m_chan(chan) {}
 
         ~channel() {
             if (m_chan != nullptr) {
@@ -116,19 +128,14 @@ namespace neco {
             }
         }
        
-        // get raw (C) neco channel
-        neco_chan* get() {
-            return m_chan;
-        }
-
-        Result send(T* data) {
-            if (m_chan == nullptr || data == nullptr) {
+        Result send(const T& data) const {
+            if (m_chan == nullptr) {
                 return Result::INVAL;
             }
-            return (Result)neco_chan_send(m_chan, data);
+            return (Result)neco_chan_send(m_chan, &const_cast<T&>(data));
         }
 
-        T recv() {
+        T recv() const {
             // TODO provide return value/error handling
             T data{};
             if (m_chan == nullptr) {
@@ -138,10 +145,42 @@ namespace neco {
             neco_chan_recv(m_chan, &data);
             return data;
         }
+
+        // Overload operator to send data to channel 
+        const channel& operator<<(const T& data) const {
+            this->send(data);
+            return *this;
+        }
+    
+        // Overload operator to receive data from channel
+        const channel& operator>>(T& data) const {
+            data = recv();
+            return *this;
+        }
+
     private:
+        explicit channel(size_t capacity = 0) {
+            neco_chan_make(&m_chan, sizeof(T), capacity);
+            neco_chan_retain(m_chan);
+        }
+
+        channel(const channel& other) {
+            neco_chan_retain(other.m_chan);
+            m_chan = other.m_chan;
+        }
+        channel& operator=(const channel& other) {
+            if (this != &other) {
+                neco_chan_retain(other.m_chan);
+                m_chan = other.m_chan;
+            }
+            return *this;
+        }
+
+        channel() = delete;
+
         neco_chan * m_chan = nullptr;
     };
-   
+    
     template<typename T>
     class generator : public go {
     public:

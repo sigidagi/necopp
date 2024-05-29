@@ -21,11 +21,10 @@ int worker(int argc, void** argv) {
 
         int fd = neco::dial("tcp", host.c_str(), 1s);
         if (fd < 0) {
-            result_sender.send(&none);
+            result_sender.send(none);
         }
         else {
-            //fmt::print("Connected to {}\n", host);
-            result_sender.send(&port);
+            result_sender.send(port);
             close(fd);
         }
     }
@@ -53,15 +52,16 @@ int main_(int argc, char** argv) {
         (void)argv;
         
         for (int i = 1; i < PORT_COUNT; i++) {
-            port_sender.send(&i);
+            port_sender << i;
         }
     })();
     
     std::vector<int> ports;
 
+    int port;
     // It was send 1024 times, so we need to receive 1024 times
     for (int i = 1; i < PORT_COUNT; i++) {
-        int port = result_receiver.recv();
+        result_receiver >> port;
         if (port != 0) {
             ports.push_back(port);
         }
@@ -69,8 +69,8 @@ int main_(int argc, char** argv) {
     
     fmt::print("Finished:\n");
     std::sort(ports.begin(), ports.end());
-    for (auto port : ports) {
-        fmt::print("Port '{}' is open\n", port);
+    for (auto p : ports) {
+        fmt::print("Port '{}' is open\n", p);
     }
     
     return 0;
