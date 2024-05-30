@@ -20,22 +20,49 @@ namespace neco
     int64_t starterid() { return neco_starterid();}
     void exit() { neco_exit();}
 
-    int serve(const char *network, const char *address) {
-        return neco_serve(network, address);
+    int serve(std::string_view network, std::string_view address) {
+        return neco_serve(network.data(), address.data());
     }
 
-    int serve(const char *network, const char *address, duration deadline) {
-        return neco_serve_dl(network, address, deadline.count());
+    int serve(std::string_view network, std::string_view address, duration deadline) {
+        return neco_serve_dl(network.data(), address.data(), deadline.count());
     }
 
-    int dial(const char *network, const char *address) {
-        return neco_dial(network, address);
+    int dial(std::string_view network, std::string_view address) {
+        return neco_dial(network.data(), address.data());
     }
     
-    int dial(const char *network, const char *address, duration deadline) {
+    int dial(std::string_view network, std::string_view address, duration deadline) {
         seconds sec = std::chrono::duration_cast<seconds>(deadline);
         int64_t dl = neco_now() + sec.count()*1000000000;
-        return neco_dial_dl(network, address, dl);
+        return neco_dial_dl(network.data(), address.data(), dl);
+    }
+    
+    io::io(int fd) : m_fd(fd) {
+    }
+    std::vector<char> io::read(size_t count) {
+        std::vector<char> buf(count);
+        ssize_t bytes = neco_read(m_fd, buf.data(), buf.size());
+        if (bytes == -1) {
+            return {};
+        }
+        buf.resize(bytes);
+        return buf;
+    }
+    std::vector<char> io::read(size_t count, duration deadline) {
+        std::vector<char> buf(count);
+        ssize_t bytes = neco_read_dl(m_fd, buf.data(), buf.size(), deadline.count());
+        if (bytes == -1) {
+            return {};
+        }
+        buf.resize(bytes);
+        return buf;
+    }
+    ssize_t io::write(const std::vector<char>& buf) {
+        return neco_write(m_fd, buf.data(), buf.size());
+    }
+    ssize_t io::write(const std::vector<char>& buf, duration deadline) {
+        return neco_write_dl(m_fd, buf.data(), buf.size(), deadline.count());
     }
 
 /*

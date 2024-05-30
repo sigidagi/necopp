@@ -14,6 +14,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CPM)
 CPMAddPackage("gh:sigidagi/neco@0.3.4")
 CPMAddPackage("gh:fmtlib/fmt#10.2.1")
+#CPMAddPackage("gh:grpc/grpc@1.64.0")
 
 add_library(necopp
     src/necopp.cpp

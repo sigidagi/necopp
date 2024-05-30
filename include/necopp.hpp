@@ -63,11 +63,22 @@ namespace neco {
     void exit();
     
     // return file descriptor
-    int serve(const char *network, const char *address);
-    int serve(const char *network, const char *address, duration deadline);
-    int dial(const char *network, const char *address);
-    int dial(const char *network, const char *address, duration deadline);
-    
+    int serve(std::string_view network, std::string_view address);
+    int serve(std::string_view network, std::string_view address, duration deadline);
+    int dial(std::string_view network, std::string_view address);
+    int dial(std::string_view network, std::string_view address, duration deadline);
+   
+    class io {
+    public:
+        io(int fd);
+        std::vector<char> read(size_t count); 
+        std::vector<char> read(size_t count, duration deadline);
+        ssize_t write(const std::vector<char>& buf);
+        ssize_t write(const std::vector<char>& buf, duration deadline);
+    private:
+        int m_fd;
+    };
+
     /*
      *Result select_impl(std::initializer_list<neco::channel*>&& chans);
      *template<typename... T>
