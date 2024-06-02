@@ -65,15 +65,20 @@ namespace neco {
     // return file descriptor
     int serve(std::string_view network, std::string_view address);
     int serve(std::string_view network, std::string_view address, duration deadline);
+    int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+    int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen, duration deadline);
+
     int dial(std::string_view network, std::string_view address);
     int dial(std::string_view network, std::string_view address, duration deadline);
    
     class io {
     public:
         io(int fd);
-        std::vector<char> read(size_t count); 
-        std::vector<char> read(size_t count, duration deadline);
+        ~io();
+        std::vector<char> read(size_t size);
+        std::vector<char> read(size_t size, duration deadline);
         ssize_t write(const std::vector<char>& buf);
+        ssize_t write(std::string_view buf);
         ssize_t write(const std::vector<char>& buf, duration deadline);
     private:
         int m_fd;
@@ -220,26 +225,11 @@ namespace neco {
    
     class waitgroup {
     public:
-        waitgroup() {
-            neco_waitgroup_init(&m_waitgroup);
-        }
-        
-        Result add(int delta) {
-            return (Result)neco_waitgroup_add(&m_waitgroup, delta);
-        }
-
-        Result done() {
-            return (Result)neco_waitgroup_done(&m_waitgroup);
-        }
-
-        Result wait() {
-            return (Result)neco_waitgroup_wait(&m_waitgroup);
-        }
-
-        Result wait(duration duration) {
-            return (Result)neco_waitgroup_wait_dl(&m_waitgroup, duration.count());
-        }
-
+        waitgroup();
+        Result add(int delta);
+        Result done();
+        Result wait();
+        Result wait(duration duration);
     private:
         neco_waitgroup m_waitgroup;
     };

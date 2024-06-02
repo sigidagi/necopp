@@ -1,5 +1,6 @@
 #include "necopp.hpp"
 #include <iostream>
+#include <unistd.h> // close(fd)
 
 std::function<void(int, void**)>* globalFunction = nullptr;
 
@@ -27,6 +28,14 @@ namespace neco
     int serve(std::string_view network, std::string_view address, duration deadline) {
         return neco_serve_dl(network.data(), address.data(), deadline.count());
     }
+    
+    int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
+        return neco_accept(sockfd, addr, addrlen);
+    }
+
+    int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen, duration deadline) {
+        return neco_accept_dl(sockfd, addr, addrlen, deadline.count());
+    }
 
     int dial(std::string_view network, std::string_view address) {
         return neco_dial(network.data(), address.data());
@@ -40,25 +49,38 @@ namespace neco
     
     io::io(int fd) : m_fd(fd) {
     }
-    std::vector<char> io::read(size_t count) {
-        std::vector<char> buf(count);
-        ssize_t bytes = neco_read(m_fd, buf.data(), buf.size());
-        if (bytes == -1) {
+    
+    io::~io() {
+        if (m_fd != -1) {
+            ::close(m_fd);
+        }
+    }
+    
+
+#include <iostream>
+
+    std::vector<char> io::read(size_t size) {
+        std::vector<char> buf(size);
+        int n = neco_read(m_fd, buf.data(), buf.size());
+        if (n <= 0) {
             return {};
         }
-        buf.resize(bytes);
-        return buf;
+        return  buf;
     }
-    std::vector<char> io::read(size_t count, duration deadline) {
-        std::vector<char> buf(count);
+
+    std::vector<char> io::read(size_t size, duration deadline) {
+        std::vector<char> buf(size);
         ssize_t bytes = neco_read_dl(m_fd, buf.data(), buf.size(), deadline.count());
         if (bytes == -1) {
             return {};
         }
-        buf.resize(bytes);
         return buf;
     }
+
     ssize_t io::write(const std::vector<char>& buf) {
+        return neco_write(m_fd, buf.data(), buf.size());
+    }
+    ssize_t io::write(std::string_view buf) {
         return neco_write(m_fd, buf.data(), buf.size());
     }
     ssize_t io::write(const std::vector<char>& buf, duration deadline) {
@@ -91,6 +113,26 @@ namespace neco
         });
         
         return coro(&argc, &argv);
+    }
+
+    waitgroup::waitgroup() {
+        neco_waitgroup_init(&m_waitgroup);
+    }
+    
+    Result waitgroup::add(int delta) {
+        return (Result)neco_waitgroup_add(&m_waitgroup, delta);
+    }
+
+    Result waitgroup::done() {
+        return (Result)neco_waitgroup_done(&m_waitgroup);
+    }
+
+    Result waitgroup::wait() {
+        return (Result)neco_waitgroup_wait(&m_waitgroup);
+    }
+
+    Result waitgroup::wait(duration duration) {
+        return (Result)neco_waitgroup_wait_dl(&m_waitgroup, duration.count());
     }
 
 } // namespace neco
