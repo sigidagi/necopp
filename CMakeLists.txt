@@ -8,13 +8,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-add_compile_options(-g -Wall -Wextra -Wpedantic)
+add_compile_options(-g -Wall -Wextra -Wpedantic -Wno-unused-parameter)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(CPM)
 CPMAddPackage("gh:sigidagi/neco@0.3.4")
 CPMAddPackage("gh:fmtlib/fmt#10.2.1")
-#CPMAddPackage("gh:grpc/grpc@1.64.0")
 
 add_library(necopp
     src/necopp.cpp
@@ -27,5 +26,14 @@ target_include_directories(necopp PUBLIC
     ${neco_SOURCE_DIR}
 )
 
+add_library(llhttp
+    src/llhttp/llhttp.c
+    src/llhttp/api.c
+    src/llhttp/http.c
+)
+
+target_include_directories(llhttp PUBLIC
+    ${CMAKE_SOURCE_DIR}/include
+)
+
 add_subdirectory(src/examples)
-add_subdirectory(src/pscan)
