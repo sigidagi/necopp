@@ -7,17 +7,13 @@ using namespace std::placeholders;
 
 class Foo {
 public:
-    void ticker(int argc, void *argv[]) {
-        (void)argc;
-        (void)argv;
+    void ticker(int, void **) {
         while (1) {
             neco::sleep(1s);
             std::cout << "Foo tick\n";
         }
     }
-    void tocker(int argc, void *argv[]) {
-        (void)argc;
-        (void)argv;
+    void tocker(int, void **) {
         while (1) {
             neco::sleep(2s);
             std::cout << "tock tock...\n";
@@ -25,9 +21,7 @@ public:
     }
 };
 
-int main_(int argc, char *argv[]) {
-    (void)argc;
-    (void)argv;
+int main_(int, char **) {
    
     Foo foo;
     neco::coroutine coro1 = std::bind(&Foo::ticker, &foo, _1, _2);

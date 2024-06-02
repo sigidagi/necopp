@@ -8,8 +8,7 @@ using namespace std::chrono_literals;
 const int WORKER_COUNT = 300;
 const int PORT_COUNT = 1024;
 
-int worker(int argc, void** argv) {
-    (void)argc;
+int worker(int, void** argv) {
     auto ports = static_cast<neco::channel<int>*>(argv[0]);
     auto results = static_cast<neco::channel<int>*>(argv[1]);
     // send 0 if port is closed 
@@ -32,10 +31,8 @@ int worker(int argc, void** argv) {
     return 0;
 }
 
-int main_(int argc, char** argv) {
-    (void)argc;
-    (void)argv;
-    
+int main_(int, char **) {
+    // 
     auto ports = neco::channel<int>(WORKER_COUNT);
     auto results = neco::channel<int>(WORKER_COUNT);
     
@@ -45,10 +42,8 @@ int main_(int argc, char** argv) {
         neco::go(std::function<int(int, void**)>(&worker))(&ports, &results);
     }
     
-    neco::go([&ports](int argc, void** argv) {
-        (void)argc;
-        (void)argv;
-        
+    neco::go([&ports](int, void **) {
+        // 
         for (int i = 1; i < PORT_COUNT; i++) {
             ports.sender << i;
         }

@@ -8,10 +8,8 @@ const int PORT_NUM = 1024;
 
 using namespace std::chrono_literals;
 
-int main_(int argc, char** argv) {
-    (void)argc;
-    (void)argv;
-
+int main_(int, char **) {
+    //
     for (int i = 1; i < PORT_NUM; i++) {
         std::string host = fmt::format("scanme.nmap.org:{}", i);
 

@@ -6,18 +6,15 @@
 
 using namespace std::chrono_literals;
 
-int main_(int argc, char** argv) {
-    (void)argc;
-    (void)argv;
+int main_(int, char **) {
     // synchronized counter - waitgroup
     neco::waitgroup wg;
     
     for (int i = 1; i < 1024; i++) {
         //        
         wg.add(1);
-        neco::go([] (int argc, void** argv){
-            (void)argc;
-            int i = *static_cast<int*>(argv[0]);
+            neco::go([] (int, void** argv){
+                int i = *static_cast<int*>(argv[0]);
             auto wg = static_cast<neco::waitgroup*>(argv[1]);
             // 
             std::string host = fmt::format("scanme.nmap.org:{}", i);

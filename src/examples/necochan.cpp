@@ -17,17 +17,12 @@ struct Foo {
     }
 };
 
-int main_(int argc, char *argv[]) {
-    (void)argc;
-    (void)argv;
+int main_(int, char **) {
    
     // create a channel witch can receive Foo objects.
     auto chFoo = neco::channel<Foo>();
 
-    neco::go([&](int argc, void **argv) {
-        (void)argc;
-        (void)argv;
-        // 
+    neco::go([&](int, void **) {
         chFoo.sender.send({ 42, 3.14, std::make_shared<int>(66), "Hello" });
     })();
     

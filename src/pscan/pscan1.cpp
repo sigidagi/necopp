@@ -2,9 +2,7 @@
 #include "necopp.hpp"
 #include <unistd.h>
 
-int main_(int argc, char** argv) {
-    (void)argc;
-    (void)argv;
+int main_(int, char **) {
     fmt::print("Hello, coroutine!\n");
 
     int fd = neco::dial("tcp", "scanme.nmap.org:80");

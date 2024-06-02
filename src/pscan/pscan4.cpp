@@ -6,8 +6,7 @@
 
 using namespace std::chrono_literals;
 
-int worker(int argc, void** argv) {
-    (void)argc;
+int worker(int, void** argv) {
     auto wg = (neco::waitgroup*)argv[0];
     auto ch = static_cast<neco::channel<int>*>(argv[1]);
     
@@ -21,9 +20,7 @@ int worker(int argc, void** argv) {
     return 0;
 }
 
-int main_(int argc, char** argv) {
-    (void)argc;
-    (void)argv;
+int main_(int, char **) {
     fmt::print("Hello, coroutine!\n");
     
     int cap = 100;

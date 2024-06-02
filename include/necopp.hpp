@@ -49,7 +49,7 @@ namespace neco {
     Result run(int argc, char* argv[], int (*user_main)(int, char**));
 
     template<typename T>
-    void yield(T* data) { neco_gen_yield(data); }
+    void yield(T& data) { neco_gen_yield(&data); }
     
     // Nano seconds duration 
     Result sleep(duration duration);
@@ -211,12 +211,14 @@ namespace neco {
             return *this;
         }
 
-        neco_gen* get() {
-            return m_gen;
-        }
+        /*
+         *neco_gen* get() {
+         *    return m_gen;
+         *}
+         */
         
-        Result next(T* data) {
-            return (Result)neco_gen_next(m_gen, data);
+        Result next(T& data) {
+            return (Result)neco_gen_next(m_gen, &data);
         }
 
     private:
