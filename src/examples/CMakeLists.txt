@@ -19,4 +19,4 @@ target_link_libraries(http_server PRIVATE fmt::fmt necopp)
 add_subdirectory(pscan)
 
 # HTTP parser tutorial
-add_subdirectory(llhttp)
+add_subdirectory(hparser)
