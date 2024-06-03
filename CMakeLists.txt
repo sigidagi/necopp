@@ -32,7 +32,9 @@ add_library(hparser
     src/hparser.cpp
 )
 
-target_link_libraries(hparser PRIVATE llhttp::llhttp fmt::fmt)
+target_link_libraries(hparser 
+    PUBLIC llhttp::llhttp 
+    PRIVATE fmt::fmt)
 
 target_include_directories(hparser PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include

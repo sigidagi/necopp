@@ -2,7 +2,7 @@
 #include <iostream>
 #include <unistd.h> // close(fd)
 
-std::function<void(int, void**)>* globalFunction = nullptr;
+std::function<void(int, void**)>* globalNecoFunction = nullptr;
 
 namespace neco 
 {
@@ -97,10 +97,10 @@ namespace neco
     go::go(coroutine coro) : m_callback(coro) {}
 
     void go::wrapper(int argc, void** argv) {
-        if (globalFunction == nullptr) {
+        if (globalNecoFunction == nullptr) {
             return;
         }
-        (*globalFunction)(argc, argv);
+        (*globalNecoFunction)(argc, argv);
     }
     
     Result run(int argc, char* argv[], int (*user_main)(int, char**)) {

@@ -3,7 +3,7 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 
-std::function<int(llhttp_t *)>* globalFunction = nullptr;
+std::function<int(llhttp_t *)>* globalParserFunction = nullptr;
 
 hparser::hparser()
 {
@@ -23,14 +23,29 @@ int hparser::on_message(on_message_complete_t handle)
 }
 
 int hparser::wrapper(llhttp_t *parser) {
-    if (globalFunction == nullptr) {
+    if (globalParserFunction == nullptr) {
         return 0;
     }
-    return (*globalFunction)(parser);
+    return (*globalParserFunction)(parser);
 }
 
 int hparser::execute(std::string_view data)
 {
     return llhttp_execute(&parser_, data.data(), data.size());
+}
+
+uint8_t hparser::status_code() const
+{
+    return parser_.status_code;
+}
+
+uint8_t hparser::method() const
+{
+    return parser_.method;
+}
+
+uint64_t hparser::content_length() const
+{
+    return parser_.content_length;
 }
 

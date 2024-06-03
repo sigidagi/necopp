@@ -8,7 +8,7 @@
 #include <string>
 #include <iostream>
 
-extern std::function<void(int, void**)>* globalFunction;
+extern std::function<void(int, void**)>* globalNecoFunction;
 
 namespace neco {
      // Results from neco library
@@ -73,7 +73,7 @@ namespace neco {
    
     class io {
     public:
-        io(int fd);
+        explicit io(int fd);
         ~io();
         std::vector<char> read(size_t size);
         std::vector<char> read(size_t size, duration deadline);
@@ -107,7 +107,7 @@ namespace neco {
     protected:
         // Funciton to convert std::function to function pointer
         void (*convertToFunctionPointer(std::function<void(int, void**)>& func))(int, void**) {
-            globalFunction = &func;
+            globalNecoFunction = &func;
             return go::wrapper;
         }
 
