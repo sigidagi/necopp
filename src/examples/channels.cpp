@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <chrono>
+#include <fmt/format.h>
 
 using namespace std::chrono_literals;
 
@@ -18,28 +19,25 @@ struct Foo {
 };
 
 int main_(int, char **) {
-   
+    
     // create a channel witch can receive Foo objects.
     auto chFoo = neco::channel<Foo>();
-
     neco::go([&](int, void **) {
+
+        fmt::print("Hello from coroutine\n");
+        // Some heavy work here
+        // ...
+        // return Foo object as a result
         chFoo.sender.send({ 42, 3.14, std::make_shared<int>(66), "Hello" });
     })();
     
-    // copy received Foo object, otherwise it will be destroyed when neco::sleep will be called. 
-    // TODO error handling
     Foo foo = chFoo.receiver.recv();
-
-    neco::sleep(1s);
-    std::cout << "Received say: " << foo.say << " two: " << *foo.ptr << std::endl;
-    neco::sleep(1s);
-
+    fmt::print("Main received: '{}' two: '{}' ...\n", foo.say, *foo.ptr);
     return 0;
 }
 
 int main(int argc, char* argv[]) {
     // run main program in Neco coroutine context
-    neco::Result ret = neco::run(argc, argv, main_);
-    std::cout << "Main exit with code: " << (int)ret << std::endl;
+    neco::run(argc, argv, main_);
 }
 

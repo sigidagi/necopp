@@ -2,7 +2,7 @@
 #include "llhttp.h"
 #include "string.h"
 
-int handle_on_message_complete(llhttp_t* parser) {
+int handle_on_message_complete(llhttp_t *) {
 	fprintf(stdout, "Message completed!\n");
 	return 0;
 }

@@ -1,6 +1,7 @@
 #include "necopp.hpp"
 #include <iostream>
 #include <chrono>
+#include <fmt/format.h>
 
 using namespace std::chrono_literals;
 
@@ -16,7 +17,7 @@ int main_(int, char **) {
     
     int i;
     while (gen.next(i) != neco::Result::CLOSED) {
-        std::cout << "Got: " << i << std::endl;
+        fmt::print("Got: {}", i);
     }
 
     return 0;
