@@ -2,7 +2,7 @@
 #include <fmt/printf.h>
 #include "necopp.hpp"
 #include <iostream>
-#include "hparser.hpp"
+#include "httpp.hpp"
 
 using namespace std::chrono_literals;
 
@@ -24,27 +24,19 @@ int main_(int, char **) {
     
     client.write(req);
     auto output = client.read(4096);
+    //fmt::printf("Output: %s\n", std::string(output.begin(), output.end()));
 
-    hparser parser;
-    parser.on_message([&parser](auto *) {
-        fmt::print("Message complete\n");
-
-        int status = parser.status_code();
-        fmt::printf("Status code: %d\n", status);
-    
-        int method = parser.method();
-        fmt::printf("Method: %d\n", method);
-        
-        int content_length = parser.content_length();
-        fmt::printf("Content length: %d\n", content_length);
-        fmt::print("\n\n");
-        return 0;
-    });
-    
+    httpp::parser parser;
     parser.execute({output.data(), output.size()});
-
-    fmt::printf("Output: %s\n", std::string(output.begin(), output.end()));
     
+    auto res = parser.response();
+
+    for (const auto& [key, value] : res.headers) {
+        fmt::print("{}: {}\n", key, value);
+    }
+
+    fmt::print("\n{}\n", res.body);
+
     close(fd);
     return 0;
 }

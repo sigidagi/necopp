@@ -10,7 +10,7 @@ add_executable(generator generators.cpp)
 target_link_libraries(generator PRIVATE fmt::fmt necopp)
 
 add_executable(http_client  http_client.cpp)
-target_link_libraries(http_client PRIVATE fmt::fmt necopp hparser)
+target_link_libraries(http_client PRIVATE fmt::fmt necopp httpp)
 
 add_executable(http_server http_server.cpp)
 target_link_libraries(http_server PRIVATE fmt::fmt necopp)
@@ -19,4 +19,4 @@ target_link_libraries(http_server PRIVATE fmt::fmt necopp)
 add_subdirectory(pscan)
 
 # HTTP parser tutorial
-add_subdirectory(hparser)
+add_subdirectory(httpp)

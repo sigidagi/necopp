@@ -28,17 +28,14 @@ target_include_directories(necopp PUBLIC
 target_link_libraries(necopp PRIVATE neco)
 
 # llhttp parser wrapper
-add_library(hparser
-    src/hparser.cpp
-)
+add_library(httpp INTERFACE)
 
-target_link_libraries(hparser 
-    PUBLIC llhttp::llhttp 
-    PRIVATE fmt::fmt)
-
-target_include_directories(hparser PUBLIC
+target_include_directories(httpp INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/llhttp
 )
+
+target_link_libraries(httpp INTERFACE llhttp::llhttp fmt::fmt)
 
 add_subdirectory(src/examples)
 add_subdirectory(third_party/llhttp)
