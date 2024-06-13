@@ -1,3 +1,9 @@
+<p align="center">
+<picture>
+  <img alt="Neco" src="resources/necopp.png" width="180">
+</picture>
+</p>
+<p></p>
 
 This library is a C++ wrapper around the [Neco](https://github.com/tidwall/neco) library.
 Concurrent programming in C++ is not easy, and with a help of a library like Neco, it can be made easier.
