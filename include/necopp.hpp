@@ -11,8 +11,8 @@
 extern std::function<void(int, void**)>* globalNecoFunction;
 
 namespace neco {
-     // Results from neco library
-    enum class Result {
+     // results from neco library
+    enum class result {
         OK = 0,
         ERROR = -1,
         INVAL = -2,
@@ -46,17 +46,17 @@ namespace neco {
      */
     
     // Wrapper functions
-    Result run(int argc, char* argv[], int (*user_main)(int, char**));
+    result run(int argc, char* argv[], int (*user_main)(int, char**));
 
     template<typename T>
     void yield(T& data) { neco_gen_yield(&data); }
     
     // Nano seconds duration 
-    Result sleep(duration duration);
-    Result sleep(duration duration, std::function<Result()> func);
-    Result suspend();
-    Result suspend(duration deadline); 
-    Result resume(int64_t id);
+    result sleep(duration duration);
+    result sleep(duration duration, std::function<result()> func);
+    result suspend();
+    result suspend(duration deadline); 
+    result resume(int64_t id);
     int64_t getid(); 
     int64_t lastid();
     int64_t starterid();
@@ -85,9 +85,9 @@ namespace neco {
     };
 
     /*
-     *Result select_impl(std::initializer_list<neco::channel*>&& chans);
+     *result select_impl(std::initializer_list<neco::channel*>&& chans);
      *template<typename... T>
-     *Result select(T... chans) {
+     *result select(T... chans) {
      *    return select_impl({std::forward<T>(chans)...});
      *}
      */
@@ -99,10 +99,10 @@ namespace neco {
         virtual ~go() = default;
 
         template<typename... Args>
-        Result operator()(Args... args) {
+        result operator()(Args... args) {
             constexpr int argc = sizeof...(Args);
             void (*callback)(int, void**) = convertToFunctionPointer(this->m_callback);
-            return (Result)neco_start(callback, argc, static_cast<void*>(args)...);
+            return (result)neco_start(callback, argc, static_cast<void*>(args)...);
         }
     protected:
         // Funciton to convert std::function to function pointer
@@ -125,7 +125,6 @@ namespace neco {
         }
 
         T recv() const {
-            // TODO provide return value/error handling
             T data{};
             if (m_chan == nullptr) {
                 return data;
@@ -152,11 +151,11 @@ namespace neco {
             m_chan = chan;
         }
 
-        Result send(const T& data) const {
+        result send(const T& data) const {
             if (m_chan == nullptr) {
-                return Result::INVAL;
+                return result::INVAL;
             }
-            return (Result)neco_chan_send(m_chan, &const_cast<T&>(data));
+            return (result)neco_chan_send(m_chan, &const_cast<T&>(data));
         }
 
         // Overload operator to send data to channel 
@@ -211,14 +210,8 @@ namespace neco {
             return *this;
         }
 
-        /*
-         *neco_gen* get() {
-         *    return m_gen;
-         *}
-         */
-        
-        Result next(T& data) {
-            return (Result)neco_gen_next(m_gen, &data);
+        result next(T& data) {
+            return (result)neco_gen_next(m_gen, &data);
         }
 
     private:
@@ -228,10 +221,10 @@ namespace neco {
     class waitgroup {
     public:
         waitgroup();
-        Result add(int delta);
-        Result done();
-        Result wait();
-        Result wait(duration duration);
+        result add(int delta);
+        result done();
+        result wait();
+        result wait(duration duration);
     private:
         neco_waitgroup m_waitgroup;
     };

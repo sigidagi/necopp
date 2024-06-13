@@ -16,7 +16,7 @@ int main_(int, char **) {
     })();
     
     int i;
-    while (gen.next(i) != neco::Result::CLOSED) {
+    while (gen.next(i) != neco::result::CLOSED) {
         fmt::print("Got: {}", i);
     }
 

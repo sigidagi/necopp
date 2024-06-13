@@ -7,15 +7,15 @@ std::function<void(int, void**)>* globalNecoFunction = nullptr;
 namespace neco 
 {
     // Nano seconds duration 
-    Result sleep(duration duration) { return (Result)neco_sleep(duration.count()); }
-    Result sleep(duration duration, std::function<Result()> func) {
+    result sleep(duration duration) { return (result)neco_sleep(duration.count()); }
+    result sleep(duration duration, std::function<result()> func) {
         neco::sleep(duration);
         return func();
     }
 
-    Result suspend() { return (Result)neco_suspend(); }
-    Result suspend(duration deadline) {return (Result)neco_suspend_dl(deadline.count()); }
-    Result resume(int64_t id) { return (Result)neco_resume(id); }
+    result suspend() { return (result)neco_suspend(); }
+    result suspend(duration deadline) {return (result)neco_suspend_dl(deadline.count()); }
+    result resume(int64_t id) { return (result)neco_resume(id); }
     int64_t getid() { return neco_getid(); }
     int64_t lastid() { return neco_lastid(); }
     int64_t starterid() { return neco_starterid();}
@@ -88,8 +88,8 @@ namespace neco
     }
 
 /*
- *    Result select_impl(std::initializer_list<neco::channel*>&& chans) {
- *        return (Result)neco_chan_select(chans.size(), chans.begin());
+ *    result select_impl(std::initializer_list<neco::channel*>&& chans) {
+ *        return (result)neco_chan_select(chans.size(), chans.begin());
  *    }
  *
  */
@@ -103,13 +103,13 @@ namespace neco
         (*globalNecoFunction)(argc, argv);
     }
     
-    Result run(int argc, char* argv[], int (*user_main)(int, char**)) {
+    result run(int argc, char* argv[], int (*user_main)(int, char**)) {
         neco_env_setpaniconerror(true);
         neco_env_setcanceltype( NECO_CANCEL_ASYNC ); 
         
         auto coro = neco::go([user_main](int argc, void** argv) {
             (void)argc;
-            __neco_exit_prog(user_main(*(int*)argv[0], *(char***)argv[1]));
+            __neco_exit_prog(user_main(*static_cast<int*>(argv[0]), *static_cast<char***>(argv[1])));
         });
         
         return coro(&argc, &argv);
@@ -119,20 +119,20 @@ namespace neco
         neco_waitgroup_init(&m_waitgroup);
     }
     
-    Result waitgroup::add(int delta) {
-        return (Result)neco_waitgroup_add(&m_waitgroup, delta);
+    result waitgroup::add(int delta) {
+        return (result)neco_waitgroup_add(&m_waitgroup, delta);
     }
 
-    Result waitgroup::done() {
-        return (Result)neco_waitgroup_done(&m_waitgroup);
+    result waitgroup::done() {
+        return (result)neco_waitgroup_done(&m_waitgroup);
     }
 
-    Result waitgroup::wait() {
-        return (Result)neco_waitgroup_wait(&m_waitgroup);
+    result waitgroup::wait() {
+        return (result)neco_waitgroup_wait(&m_waitgroup);
     }
 
-    Result waitgroup::wait(duration duration) {
-        return (Result)neco_waitgroup_wait_dl(&m_waitgroup, duration.count());
+    result waitgroup::wait(duration duration) {
+        return (result)neco_waitgroup_wait_dl(&m_waitgroup, duration.count());
     }
 
 } // namespace neco
