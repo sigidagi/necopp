@@ -1,6 +1,6 @@
 <p align="center">
 <picture>
-  <img alt="Neco" src="resources/neco++3new.png" width="240">
+  <img alt="Neco" src="assets/neco++3new.png" width="240">
 </picture>
 </p>
 <p></p>
