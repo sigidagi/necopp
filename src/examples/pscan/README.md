@@ -112,6 +112,11 @@ The goal is to provide similar interface as Go goroutines, just in C++.
 
 ---
 
+
+![diagram](./assets/neco_diagram.png)
+
+---
+
 Example of `Neco++`
 
 ```cpp
