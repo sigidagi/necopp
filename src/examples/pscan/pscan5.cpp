@@ -3,6 +3,7 @@
 #include "necopp.hpp"
 #include <unistd.h>
 #include <chrono>
+#include "timer.hpp"
 
 using namespace std::chrono_literals;
 const int WORKER_COUNT = 300;
@@ -33,6 +34,8 @@ int worker(int, void** argv) {
 
 int main_(int, char **) {
     // 
+    auto timer = Timer();
+
     auto ports = neco::channel<int>(WORKER_COUNT);
     auto results = neco::channel<int>(WORKER_COUNT);
     
@@ -58,9 +61,11 @@ int main_(int, char **) {
         if (port != 0) {
             open_ports.push_back(port);
         }
-    } 
-    
-    fmt::print("Finished:\n");
+    }
+
+    fmt::print("\nElapsed time: {} [ms]\n", timer.elapsed());
+    std::fflush(nullptr);
+   
     std::sort(open_ports.begin(), open_ports.end());
     for (auto p : open_ports) {
         fmt::print("Port '{}' is open\n", p);

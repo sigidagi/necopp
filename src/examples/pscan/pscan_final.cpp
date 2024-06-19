@@ -3,26 +3,23 @@
 #include "necopp.hpp"
 #include <unistd.h>
 #include <chrono>
+#include "timer.hpp"
 
 using namespace std::chrono_literals;
 const int WORKER_COUNT = 300;
 const int PORT_COUNT = 1024;
 
-int main_(int argc, char** argv) {
-    (void)argc;
-    (void)argv;
-    
-    // pors and results channels
+int main_(int, char**) {
+
+    auto timer = Timer();
+    // ports and results channels
     auto ports = neco::channel<int>(WORKER_COUNT);
     auto results = neco::channel<int>(WORKER_COUNT);
 
     // 1. Spin workers
     for (int i = 0; i < WORKER_COUNT; i++) {
-        // Using C style argument passing
-        neco::go([&](int argc, void** argv) {
-            (void)argc;
-            (void)argv;
-            
+
+        neco::go([&](int, void**) {
             const auto& rsender = results.sender;
             const auto& preceiver = ports.receiver;
             
@@ -46,18 +43,13 @@ int main_(int argc, char** argv) {
     
     // 2. Send ports to workers
     const auto& port_sender = ports.sender;
-    neco::go([&](int argc, void** argv) {
-        (void)argc;
-        (void)argv;
-        
+    neco::go([&](int, void**) {
         for (int i = 1; i < PORT_COUNT; i++) {
             port_sender << i;
         }
     })();
     
-    
     // 3. Listen on channel to receive results.
-
     const auto& result_receiver = results.receiver;
 
     std::vector<int> open_ports;
@@ -69,8 +61,10 @@ int main_(int argc, char** argv) {
             open_ports.push_back(port);
         }
     } 
-    
-    fmt::print("Finished:\n");
+   
+    fmt::print("\nElapsed time: {} [ms]\n", timer.elapsed());
+    std::fflush(nullptr);
+
     std::sort(open_ports.begin(), open_ports.end());
     for (auto p : open_ports) {
         fmt::print("Port '{}' is open\n", p);

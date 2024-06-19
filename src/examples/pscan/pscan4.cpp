@@ -3,6 +3,7 @@
 #include "necopp.hpp"
 #include <unistd.h>
 #include <chrono>
+#include "timer.hpp"
 
 using namespace std::chrono_literals;
 
@@ -13,7 +14,7 @@ int worker(int, void** argv) {
     int port{};
     while (true) {
         ch->receiver >> port;
-        std::cout <<  "port " << port << "\n";
+        fmt::print("port {}\n", port);
         wg->done();
     }
 
@@ -21,8 +22,7 @@ int worker(int, void** argv) {
 }
 
 int main_(int, char **) {
-    fmt::print("Hello, coroutine!\n");
-    
+    //
     int cap = 100;
     auto ch = neco::channel<int>(cap);
     neco::waitgroup wg;
