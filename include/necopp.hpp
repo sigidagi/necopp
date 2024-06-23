@@ -195,30 +195,54 @@ namespace neco {
     };
     
     template<typename ...Args>
-    int select(Args&&... args) {
+    int select2(Args&&... args) {
         return neco_chan_select(sizeof...(Args), args.get()...);
     }
     
     template<typename T>
-    T case_channel(const channel<T>& chan) {
+    T channel_case(const channel<T>& chan) {
         T msg;
         neco_chan_case(chan.get(), &msg);
         return msg;
     }
 
-    /*
-     *result select_impl(std::initializer_list<neco::channel*>&& chans);
-     *template<typename... T>
-     *result select(T... chans) {
-     *    return select_impl({std::forward<T>(chans)...});
-     *}
-     */
-    /*
-     *    result select_impl(std::initializer_list<neco::channel*>&& chans) {
-     *        return (result)neco_chan_select(chans.size(), chans.begin());
-     *    }
-     *
-     */
+    template<typename T, typename Handler>
+    struct incase {
+        neco::channel<T>& channel;
+        Handler handler;
+    };
+
+    template<typename T, typename Handler>
+    incase(neco::channel<T>&, Handler) -> incase<T, Handler>;
+
+    template<typename... ChannelHandlers>
+    void select(ChannelHandlers&&... channelHandlers) {
+        // Create a tuple of channel handlers
+        auto handlersTuple = std::make_tuple(std::forward<ChannelHandlers>(channelHandlers)...);
+
+        // Map to store the handlers for each channel index
+        std::unordered_map<int, std::function<void()>> handlerMap;
+
+        // Initialize handlers for each channel
+        int index = 0;
+        auto addHandler = [&](auto&& chHandler) {
+            handlerMap[index] = [&, chHandler] {
+                chHandler.handler(neco::channel_case(chHandler.channel));
+            };
+            index++;
+        };
+        std::apply([&](auto&&... chHandlers) { (addHandler(chHandlers), ...); }, handlersTuple);
+
+        constexpr auto size = sizeof...(ChannelHandlers);
+        // Iterate based on the number of channels
+        for (size_t i = 0; i < size; ++i) {
+            int index = neco_chan_select(size, channelHandlers.channel.get()...);
+            auto it = handlerMap.find(index);
+            if (it != handlerMap.end()) {
+                it->second();
+            } 
+        }
+    }
 
     template<typename T>
     class generator : public go {
