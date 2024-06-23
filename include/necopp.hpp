@@ -33,7 +33,8 @@ namespace neco {
         NOTGENERATOR = -17,
         NOTSUSPENDED = -18
     };
-   
+
+    using function_ptr = void (*)(int, void**);
     using coroutine = std::function<void(int, void**)>;
     using duration = std::chrono::duration<int64_t, std::ratio<1, 1000000000>>;
     using seconds = std::chrono::seconds;
@@ -84,25 +85,16 @@ namespace neco {
         int m_fd;
     };
 
-    /*
-     *result select_impl(std::initializer_list<neco::channel*>&& chans);
-     *template<typename... T>
-     *result select(T... chans) {
-     *    return select_impl({std::forward<T>(chans)...});
-     *}
-     */
-
     // --------------------------------------------------------------------------------------------
     class go {
     public:
-        explicit go(coroutine coroutine);
+        explicit go(coroutine callback);
         virtual ~go() = default;
 
         template<typename... Args>
         result operator()(Args... args) {
             constexpr int argc = sizeof...(Args);
-            void (*callback)(int, void**) = convertToFunctionPointer(this->m_callback);
-            return (result)neco_start(callback, argc, static_cast<void*>(args)...);
+            return (result)neco_start(m_callback, argc, static_cast<void*>(args)...);
         }
     protected:
         // Funciton to convert std::function to function pointer
@@ -112,7 +104,7 @@ namespace neco {
         }
 
         static void wrapper(int argc, void** argv);
-        coroutine m_callback;
+        function_ptr m_callback;
     private:
         //
     };
@@ -120,6 +112,9 @@ namespace neco {
     template<typename T>
     class _receiver {
     public:
+        _receiver() = default;
+        ~_receiver() = default; 
+
         void set(neco_chan* chan) {
             m_chan = chan;
         }
@@ -147,6 +142,9 @@ namespace neco {
     template<typename T>
     class _sender {
     public:
+        _sender() = default;
+        ~_sender() = default;
+
         void set(neco_chan* chan) {
             m_chan = chan;
         }
@@ -172,7 +170,7 @@ namespace neco {
     public:
         _sender<T> sender;
         _receiver<T> receiver;
- 
+    
         explicit channel(size_t capacity = 0) {
             neco_chan_make(&m_chan, sizeof(T), capacity);
             neco_chan_retain(m_chan);
@@ -180,10 +178,15 @@ namespace neco {
             sender.set(m_chan);
             receiver.set(m_chan);
         }
-   
+        
+        neco_chan* get() const {
+            return m_chan;
+        }
+
         ~channel() {
             if (m_chan != nullptr) {
                 neco_chan_release(m_chan);
+                m_chan = nullptr;
             }
         }
 
@@ -191,6 +194,32 @@ namespace neco {
         neco_chan * m_chan = nullptr;
     };
     
+    template<typename ...Args>
+    int select(Args&&... args) {
+        return neco_chan_select(sizeof...(Args), args.get()...);
+    }
+    
+    template<typename T>
+    T case_channel(const channel<T>& chan) {
+        T msg;
+        neco_chan_case(chan.get(), &msg);
+        return msg;
+    }
+
+    /*
+     *result select_impl(std::initializer_list<neco::channel*>&& chans);
+     *template<typename... T>
+     *result select(T... chans) {
+     *    return select_impl({std::forward<T>(chans)...});
+     *}
+     */
+    /*
+     *    result select_impl(std::initializer_list<neco::channel*>&& chans) {
+     *        return (result)neco_chan_select(chans.size(), chans.begin());
+     *    }
+     *
+     */
+
     template<typename T>
     class generator : public go {
     public:
@@ -205,8 +234,7 @@ namespace neco {
         template<typename... Args>
         generator& operator()(Args... args) {
             constexpr int argc = sizeof...(Args);
-            void (*callback)(int, void**) = convertToFunctionPointer(this->m_callback);
-            neco_gen_start(&m_gen, sizeof(T), callback, argc, static_cast<void*>(args)...);
+            neco_gen_start(&m_gen, sizeof(T), m_callback, argc, static_cast<void*>(args)...);
             return *this;
         }
 

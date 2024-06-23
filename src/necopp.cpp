@@ -56,9 +56,6 @@ namespace neco
         }
     }
     
-
-#include <iostream>
-
     std::vector<char> io::read(size_t size) {
         std::vector<char> buf(size);
         int n = neco_read(m_fd, buf.data(), buf.size());
@@ -87,14 +84,10 @@ namespace neco
         return neco_write_dl(m_fd, buf.data(), buf.size(), deadline.count());
     }
 
-/*
- *    result select_impl(std::initializer_list<neco::channel*>&& chans) {
- *        return (result)neco_chan_select(chans.size(), chans.begin());
- *    }
- *
- */
     // --------------------------------------------------------------------------------------------
-    go::go(coroutine coro) : m_callback(coro) {}
+    go::go(coroutine coro) {
+       m_callback = convertToFunctionPointer(coro);
+    }
 
     void go::wrapper(int argc, void** argv) {
         if (globalNecoFunction == nullptr) {

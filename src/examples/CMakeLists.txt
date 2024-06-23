@@ -15,6 +15,10 @@ target_link_libraries(http_client PRIVATE fmt::fmt necopp httpp)
 add_executable(http_server http_server.cpp)
 target_link_libraries(http_server PRIVATE fmt::fmt necopp)
 
+add_executable(selecta select.cpp)
+target_link_libraries(selecta PRIVATE fmt::fmt necopp)
+
+
 # Port scanner tutorial
 add_subdirectory(pscan)
 
