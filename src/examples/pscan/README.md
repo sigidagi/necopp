@@ -11,7 +11,9 @@ backgroundImage: url('https://marp.app/assets/hero-background.svg')
 # Concurrency demo using C++ coroutines
 ---
 
-We use threads and/or coroutines to create concurrent programs. Concurrent programs are able to run multiple task at the same time.  
+We use threads and/or coroutines to create concurrent programs.
+
+Concurrent programs are able to run multiple task at the same time.  
 
 ---
 
@@ -34,9 +36,13 @@ The problem was designed to illustrate the challenges of avoiding deadlock,
 
 
 Some advantages: simplify writing I/O-oriented software:
+
 - easy to write and read.
+ 
 - performance and scalability: non blocking, latency aware.
+ 
 - productivity: modular and reusable code.
+ 
 - fun.
 
 ---
@@ -153,6 +159,11 @@ int main(int argc, char* argv[]) {
 ```
 ---
 
+### Neco++ API
+
+References: [neco++ examples](https://github.com/sigidagi/necopp/tree/develop)
+
+---
 
 ### Demo
 

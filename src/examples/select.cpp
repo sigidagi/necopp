@@ -12,17 +12,15 @@ int main_(int, char **) {
     neco::channel<const char*> ch1;
     neco::channel<const char*> ch2;
 
-    neco::go([](int, void** argv) {
-        neco::channel<const char*>* ch = (neco::channel<const char*>*)argv[0];
+    neco::go([&](int, void**) {
         neco::sleep(500ms);
-        ch->sender.send("Hello");
-    })(&ch1);
+        ch2.sender.send("Hello");
+    })();
 
-    neco::go([](int, void** argv) {
-        neco::channel<const char*>* ch = (neco::channel<const char*>*)argv[0];
+    neco::go([&](int, void**) {
         neco::sleep(1s);
-        ch->sender.send("World");
-    })(&ch2);
+        ch1.sender.send("World");
+    })();
     
     /*
      *for (int i = 0; i < 2; i++) {
@@ -39,16 +37,24 @@ int main_(int, char **) {
      *    }
      *}
      */
- 
+    
+    std::vector<std::string> words;
     neco::select(
-        neco::incase{ch1, [](const auto &data) {
-            fmt::print("Received: '{}'\n", data);
+        neco::incase{ch1, [&words](const auto &data) {
+            words.push_back(data);
         }},
-        neco::incase{ch2, [](const auto &data) {
-            fmt::print("Received: '{}'\n", data);
+        neco::incase{ch2, [&words](const auto &data) {
+            words.push_back(data);
         }}
     );
-  
+    
+    fmt::print("Words: '");
+    for (const auto &word : words) {
+        fmt::print("{} ", word);
+    }
+    fmt::print("'\n");
+    fflush(stdout);
+    
     return 0;
 }
 

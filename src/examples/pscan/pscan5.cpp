@@ -64,13 +64,13 @@ int main_(int, char **) {
     }
 
     fmt::print("\nElapsed time: {} [ms]\n", timer.elapsed());
-    std::fflush(nullptr);
    
     std::sort(open_ports.begin(), open_ports.end());
     for (auto p : open_ports) {
         fmt::print("Port '{}' is open\n", p);
     }
     
+    std::fflush(nullptr);
     return 0;
 }
 
