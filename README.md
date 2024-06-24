@@ -320,7 +320,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-Example 9: Select
+## Example 9: Select
 
 The `select` statement lets a coroutine wait on multiple communication operations.
 
