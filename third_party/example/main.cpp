@@ -1,18 +1,16 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
-
-#include "llhttpp.hpp"  // Adjust the include path if needed
+#include "htpp.hpp"  // Adjust the include path if needed
 
 int main() {
     try {
         // Define the URL and JSON body for the POST request
-        std::string url =
-            "http://localhost:5000/echo";  // Replace with your echo server URL
+        std::string url = "http://localhost:5000/echo"; 
         nlohmann::json jsonBody = {{"message", "Hello, Echo Server!"},
                                    {"author", "llhttp C++ Wrapper"}};
 
         // Perform the POST request
-        auto response = llhttp::post(url, jsonBody);
+        auto response = htpp::post(url, jsonBody);
 
         // Check if the request was successful
         if (!response.error.empty()) {

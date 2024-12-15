@@ -2,7 +2,7 @@
 #include <fmt/printf.h>
 #include "necopp.hpp"
 #include <iostream>
-#include "httpp.hpp"
+#include "htpp.hpp"
 
 using namespace std::chrono_literals;
 
@@ -24,23 +24,47 @@ int main_(int, char **) {
     
     client.write(req);
     auto output = client.read(4096);
+
+/*
+ *    htpp::HttpResponse response;;
+ *    htpp::HttpParser parser = htpp::createHttpParser(response);
+ *    parser.execute({output.data(), output.size()});
+ *
+ *    // Check if the request was successful
+ *    if (!response.error.empty()) {
+ *        fmt::print("Error: {}\n", response.error);
+ *        close(fd);
+ *        return EXIT_FAILURE;
+ *    }
+ *
+ *    // Print the response details
+ *    fmt::print("HTTP Status: {}\n", response.status);
+ *    fmt::print("Headers size: {}\n", response.headers.size());
+ *    for (const auto& header : response.headers) {
+ *        fmt::print("{}: {}\n", header.first, header.second);
+ *    }
+ *    fmt::print("Body: {}\n", response.body.dump(4));
+ *
+ */
+
     //fmt::printf("Output: %s\n", std::string(output.begin(), output.end()));
-
-    httpp::parser parser;
-    parser.execute({output.data(), output.size()});
-    
-    auto res = parser.response();
-
-    for (const auto& [key, value] : res.headers) {
-        fmt::print("{}: {}\n", key, value);
-    }
-
-    fmt::print("\n{}\n", res.body);
-
+/*
+ *    httpp::parser parser;
+ *    parser.execute({output.data(), output.size()});
+ *    
+ *    auto res = parser.response();
+ *
+ *    for (const auto& [key, value] : res.headers) {
+ *        fmt::print("{}: {}\n", key, value);
+ *    }
+ *
+ *    fmt::print("\n{}\n", res.body);
+ *
+ */
     close(fd);
     return 0;
 }
 
 int main(int argc, char *argv[]) {
-    neco::run(argc, argv, main_);
+    return (int)neco::run(argc, argv, main_);
 }

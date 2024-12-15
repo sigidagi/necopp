@@ -22,16 +22,17 @@ add_subdirectory(llhttp)
 include_directories(llhttp/include)
 
 # Add your project sources
-add_library(llhttpp INTERFACE)
-target_include_directories(llhttpp INTERFACE include/)
-
+add_library(htpp INTERFACE)
+target_include_directories(htpp INTERFACE include/)
+# alias the target to a more user-friendly name
+add_library(htpp::htpp ALIAS htpp)
 
 # Link llhttp library to your C++ wrapper
-target_link_libraries(llhttpp INTERFACE llhttp)
+target_link_libraries(htpp INTERFACE llhttp)
 
 # Optional: Add an executable for testing
 add_executable(example example/main.cpp)
 
 # Link the wrapper to the executable
-target_link_libraries(example PRIVATE llhttpp nlohmann_json::nlohmann_json)
+target_link_libraries(example PRIVATE htpp::htpp nlohmann_json::nlohmann_json)
 

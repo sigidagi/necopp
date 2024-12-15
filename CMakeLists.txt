@@ -14,6 +14,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CPM)
 CPMAddPackage("gh:sigidagi/neco@0.3.4")
 CPMAddPackage("gh:fmtlib/fmt#10.2.1")
+CPMAddPackage("gh:nlohmann/json@3.11.3")
+
+add_subdirectory(third_party/llhttp)
 
 # neco coroutine library wrapper
 add_library(necopp
@@ -28,14 +31,15 @@ target_include_directories(necopp PUBLIC
 target_link_libraries(necopp PRIVATE neco)
 
 # llhttp parser wrapper
-add_library(httpp INTERFACE)
+add_library(htpp INTERFACE)
+target_include_directories(htpp INTERFACE include/)
 
-target_include_directories(httpp INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/llhttp
+add_library(htpp::htpp ALIAS htpp)
+
+target_link_libraries(htpp INTERFACE
+    llhttp::llhttp
+    fmt::fmt
+    nlohmann_json::nlohmann_json
 )
 
-target_link_libraries(httpp INTERFACE llhttp::llhttp fmt::fmt)
-
 add_subdirectory(src/examples)
-add_subdirectory(third_party/llhttp)
