@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <chrono>
 #include <string>
+#include <string_view>
 #include <iostream>
 
 extern std::function<void(int, void**)>* globalNecoFunction;

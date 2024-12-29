@@ -9,8 +9,8 @@ const int PORT_NUM = 100;
 
 using namespace std::chrono_literals;
 
-int main_(int, char **) {
-
+int main_(int, char **) 
+{
     auto timer = Timer();
 
     for (int i = 1; i < PORT_NUM; i++) {

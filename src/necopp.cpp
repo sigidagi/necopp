@@ -1,5 +1,6 @@
 #include "necopp.hpp"
 #include <iostream>
+#include <string_view>
 #include <unistd.h> // close(fd)
 
 std::function<void(int, void**)>* globalNecoFunction = nullptr;
