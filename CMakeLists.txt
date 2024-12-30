@@ -23,10 +23,17 @@ FetchContent_Declare(json
     GIT_REPOSITORY https://github.com/nlohmann/json.git
     GIT_TAG v3.11.3 # Use the desired branch, tag, or commit
 )
+FetchContent_Declare(
+    llhttp
+    URL "https://github.com/nodejs/llhttp/archive/refs/tags/release/v9.2.1.tar.gz"
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+
 
 FetchContent_MakeAvailable(neco)
 FetchContent_MakeAvailable(fmt)
 FetchContent_MakeAvailable(json)
+FetchContent_MakeAvailable(llhttp)
 
 add_library(neco_static STATIC ${neco_SOURCE_DIR}/neco.c)
 # Include the `neco` headers
@@ -35,6 +42,7 @@ target_include_directories(neco_static PUBLIC ${neco_SOURCE_DIR})
 # neco coroutine library wrapper
 add_library(necopp STATIC
     src/necopp.cpp
+    src/requests.cpp
 )
 
 target_include_directories(necopp PUBLIC
@@ -42,7 +50,7 @@ target_include_directories(necopp PUBLIC
     ${neco_SOURCE_DIR}
 )
 
-target_link_libraries(necopp PRIVATE neco_static)
+target_link_libraries(necopp PRIVATE neco_static llhttp::llhttp)
 target_compile_features(necopp PUBLIC cxx_std_17)
 
 add_subdirectory(examples)

@@ -1,0 +1,81 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "clang-debug",
+      "description": "Clang compiler, Debug configuration, Ninja generator",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/clang-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "clang-release",
+      "description": "Clang compiler, Release configuration, Ninja generator",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/clang-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "gcc-debug",
+      "description": "GCC compiler, Debug configuration, Ninja generator",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/gcc-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "gcc-release",
+      "description": "GCC compiler, Release configuration, Ninja generator",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/gcc-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "build",
+      "configurePreset": "clang-debug",
+      "description": "Build with the current configure preset",
+      "jobs": 4
+    },
+    {
+      "name": "build-release",
+      "configurePreset": "clang-release",
+      "description": "Build with Release configuration",
+      "jobs": 4
+    },
+    {
+      "name": "build-gcc-debug",
+      "configurePreset": "gcc-debug",
+      "description": "Build GCC Debug configuration",
+      "jobs": 4
+    },
+    {
+      "name": "build-gcc-release",
+      "configurePreset": "gcc-release",
+      "description": "Build GCC Release configuration",
+      "jobs": 4
+    }
+  ]
+}
+
