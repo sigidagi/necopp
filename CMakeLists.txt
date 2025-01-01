@@ -43,6 +43,7 @@ target_include_directories(neco_static PUBLIC ${neco_SOURCE_DIR})
 add_library(necopp STATIC
     src/necopp.cpp
     src/requests.cpp
+    src/http.cpp
 )
 
 target_include_directories(necopp PUBLIC

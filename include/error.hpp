@@ -8,6 +8,7 @@ namespace neco {
 enum class http_error {
     OK,
     SOCKET_INIT_FAILED,
+    SOCKET_CLOSED,
     CONNECTION_FAILED,
     SOCKET_READ_FAILED,
     HTTP_PARSING_FAILED,
