@@ -19,7 +19,7 @@ struct Foo {
 };
 
 int main_(int, char **) {
-    
+
     // create a channel witch can receive Foo objects.
     auto chFoo = neco::channel<Foo>();
     neco::go([&](int, void **) {
@@ -30,7 +30,7 @@ int main_(int, char **) {
         // return Foo object as a result
         chFoo.sender.send({ 42, 3.14, std::make_shared<int>(66), "Hello" });
     })();
-    
+
     Foo foo = chFoo.receiver.recv();
     fmt::print("Main received: '{}' two: '{}' ...\n", foo.say, *foo.ptr);
     return 0;

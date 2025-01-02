@@ -5,9 +5,9 @@
 
 std::function<void(int, void**)>* globalNecoFunction = nullptr;
 
-namespace neco 
+namespace neco
 {
-    // Nano seconds duration 
+    // Nano seconds duration
     result sleep(duration duration) { return (result)neco_sleep(duration.count()); }
     result sleep(duration duration, std::function<result()> func) {
         neco::sleep(duration);
@@ -29,7 +29,7 @@ namespace neco
     int serve(std::string_view network, std::string_view address, duration deadline) {
         return neco_serve_dl(network.data(), address.data(), deadline.count());
     }
-    
+
     int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
         return neco_accept(sockfd, addr, addrlen);
     }
@@ -41,22 +41,22 @@ namespace neco
     int dial(std::string_view network, std::string_view address) {
         return neco_dial(network.data(), address.data());
     }
-    
+
     int dial(std::string_view network, std::string_view address, duration deadline) {
         seconds sec = std::chrono::duration_cast<seconds>(deadline);
         int64_t dl = neco_now() + sec.count()*1000000000;
         return neco_dial_dl(network.data(), address.data(), dl);
     }
-    
+
     io::io(int fd) : m_fd(fd) {
     }
-    
+
     io::~io() {
         if (m_fd != -1) {
             ::close(m_fd);
         }
     }
-    
+
     std::vector<char> io::read(size_t size) {
         std::vector<char> buf(size);
         int n = neco_read(m_fd, buf.data(), buf.size());
@@ -96,23 +96,23 @@ namespace neco
         }
         (*globalNecoFunction)(argc, argv);
     }
-    
+
     result run(int argc, char* argv[], int (*user_main)(int, char**)) {
         neco_env_setpaniconerror(true);
-        neco_env_setcanceltype( NECO_CANCEL_ASYNC ); 
-        
+        neco_env_setcanceltype( NECO_CANCEL_ASYNC );
+
         auto coro = neco::go([user_main](int argc, void** argv) {
             (void)argc;
             __neco_exit_prog(user_main(*static_cast<int*>(argv[0]), *static_cast<char***>(argv[1])));
         });
-        
+
         return coro(&argc, &argv);
     }
 
     waitgroup::waitgroup() {
         neco_waitgroup_init(&m_waitgroup);
     }
-    
+
     result waitgroup::add(int delta) {
         return (result)neco_waitgroup_add(&m_waitgroup, delta);
     }

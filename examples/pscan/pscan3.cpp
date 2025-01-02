@@ -12,10 +12,10 @@ int main_(int, char **) {
     auto timer = Timer();
     neco::waitgroup wg;
     for (int i = 1; i < 100; i++) {
-        //        
+        //
         wg.add(1);
         neco::go([&i, &wg] (int, void**) {
-            // 
+            //
             std::string host = fmt::format("scanme.nmap.org:{}", i);
 
             int fd = neco::dial("tcp", host.c_str(), 1s);
@@ -30,7 +30,7 @@ int main_(int, char **) {
             wg.done();
         })();
     } // for loop
-    
+
     wg.wait();
 
     fmt::print("\nElapsed time: {} [ms]\n", timer.elapsed());

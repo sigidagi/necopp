@@ -40,30 +40,30 @@ namespace neco {
     using duration = std::chrono::duration<int64_t, std::ratio<1, 1000000000>>;
     using seconds = std::chrono::seconds;
 
-    // C++ typedefs 
+    // C++ typedefs
     /*
      *typedef neco_cond condition;
      *typedef neco_stream stream;
      *typedef neco_mutex mutex;
      */
-    
+
     // Wrapper functions
     result run(int argc, char* argv[], int (*user_main)(int, char**));
 
     template<typename T>
     void yield(T& data) { neco_gen_yield(&data); }
-    
-    // Nano seconds duration 
+
+    // Nano seconds duration
     result sleep(duration duration);
     result sleep(duration duration, std::function<result()> func);
     result suspend();
-    result suspend(duration deadline); 
+    result suspend(duration deadline);
     result resume(int64_t id);
-    int64_t getid(); 
+    int64_t getid();
     int64_t lastid();
     int64_t starterid();
     void exit();
-    
+
     // return file descriptor
     int serve(std::string_view network, std::string_view address);
     int serve(std::string_view network, std::string_view address, duration deadline);
@@ -72,11 +72,12 @@ namespace neco {
 
     int dial(std::string_view network, std::string_view address);
     int dial(std::string_view network, std::string_view address, duration deadline);
-   
+
     class io {
     public:
         explicit io(int fd);
         ~io();
+        int get() const { return m_fd; }
         std::vector<char> read(size_t size);
         std::vector<char> read(size_t size, duration deadline);
         ssize_t write(const std::vector<char>& buf);
@@ -109,12 +110,12 @@ namespace neco {
     private:
         //
     };
-    
+
     template<typename T>
     class _receiver {
     public:
         _receiver() = default;
-        ~_receiver() = default; 
+        ~_receiver() = default;
 
         void set(neco_chan* chan) {
             m_chan = chan;
@@ -135,11 +136,11 @@ namespace neco {
             data = recv();
             return *this;
         }
-    
+
     private:
         neco_chan*  m_chan = nullptr;
     };
-    
+
     template<typename T>
     class _sender {
     public:
@@ -157,7 +158,7 @@ namespace neco {
             return (result)neco_chan_send(m_chan, &const_cast<T&>(data));
         }
 
-        // Overload operator to send data to channel 
+        // Overload operator to send data to channel
         const _sender& operator<<(const T& data) const {
             this->send(data);
             return *this;
@@ -171,7 +172,7 @@ namespace neco {
     public:
         _sender<T> sender;
         _receiver<T> receiver;
-    
+
         explicit channel(size_t capacity = 0) {
             neco_chan_make(&m_chan, sizeof(T), capacity);
             neco_chan_retain(m_chan);
@@ -179,7 +180,7 @@ namespace neco {
             sender.set(m_chan);
             receiver.set(m_chan);
         }
-        
+
         neco_chan* get() const {
             return m_chan;
         }
@@ -194,12 +195,12 @@ namespace neco {
     private:
         neco_chan * m_chan = nullptr;
     };
-    
+
     template<typename ...Args>
     int select2(Args&&... args) {
         return neco_chan_select(sizeof...(Args), args.get()...);
     }
-    
+
     template<typename T>
     T channel_case(const channel<T>& chan) {
         T msg;
@@ -237,11 +238,11 @@ namespace neco {
         constexpr auto size = sizeof...(ChannelHandlers);
         // Iterate based on the number of channels
         for (size_t i = 0; i < size; ++i) {
-            int index = neco_chan_select(size, channelHandlers.channel.get()...);
-            auto it = handlerMap.find(index);
+            int idx = neco_chan_select(size, channelHandlers.channel.get()...);
+            auto it = handlerMap.find(idx);
             if (it != handlerMap.end()) {
                 it->second();
-            } 
+            }
         }
     }
 
@@ -270,7 +271,7 @@ namespace neco {
     private:
         neco_gen* m_gen = nullptr;
     };
-   
+
     class waitgroup {
     public:
         waitgroup();

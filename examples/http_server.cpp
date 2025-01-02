@@ -26,7 +26,14 @@ void receiver(int fd, const std::string& res_json) {
         if (it == res.headers.end()) {
             fmt::print("Content-Type not found.\n");
         }
-        io.write(res_json);
+
+
+        size_t count = neco_write(fd, res_json.c_str(), res_json.size());
+        if (count != res_json.size()) {
+            throw neco::exception(neco::http_error::SEND_FAILED, "Failed to send response.");
+        }
+
+        io.send(res_json);
     }
     catch (const std::exception& e) {
         fmt::print("Error: {}\n", e.what());
@@ -49,7 +56,7 @@ int main_(int, char **) {
         fmt::print("Failed to serve: {}\n", neco_strerror(errno));
         return 1;
     }
-    
+
     fmt::print("Serving on: {}\n", "127.0.0.1:5000");
     while(true) {
         int fd = neco::accept(servfd, 0, 0);
@@ -60,15 +67,14 @@ int main_(int, char **) {
 
         neco::go([&fd](int, void**) {
 
-            std::string res_json = 
+            std::string res_json =
                 "HTTP/1.0 200 OK\r\n"
                 "Content-Type: application/json\r\n"
                 "Content-Length: 27\r\n"
-                "Connection: close\r\n"
                 "\r\n"
                 "{\"greetings\":\"Hello Neco!\"}\n";
 
-            receiver(fd, res_json);
+            receiver2(fd, res_json);
         })();
     }
 

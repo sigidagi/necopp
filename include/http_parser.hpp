@@ -27,7 +27,7 @@ public:
 
     http_parser() {
         llhttp_settings_init(&settings_);
-        
+
         // TODO - Add support for HTTP_REQUEST and HTTP_RESPONSE
         llhttp_init(&parser_, static_cast<llhttp_type_t>(type::BOTH), &settings_);
         parser_.data = this;
